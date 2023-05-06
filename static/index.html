@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sorteio de Vagas</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1,
+        h2 {
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: inline-block;
+            width: 150px;
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        input[type="submit"] {
+            margin-left: 160px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            margin-top: 10px;
+        }
+
+        ul li {
+            margin-bottom: 5px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .header button {
+            font-size: 18px;
+        }
+
+        .vaga {
+            display: inline-block;
+            width: 70px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #444;
+            border-radius: 5px;
+            font-weight: 700;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+
+        .vaga:hover {
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .vaga.disponivel {
+            background-color: #4caf50;
+        }
+
+        .vaga.vinculada {
+            background-color: #ffca28;
+        }
+
+        button {
+            background-color: #3f51b5;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #283593;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-field {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .input-field label {
+            margin-right: 10px;
+            text-align: left;
+        }
+
+        .input-field input {
+            flex-grow: 1;
+        }
+
+        .vagas-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: space-between;
+        }
+
+        .vaga {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 65px;
+            height: 65px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .disponivel {
+            background-color: #b8e994;
+        }
+
+        .ocupada {
+            background-color: #f56f4d;
+        }
+
+        .vaga-number {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .vaga-status {
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+
+
+
+
+
+</head>
+<div class="container"></div>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sorteio de Vagas</h1>
+            <button type="button" onclick="sortearApartamento()">Sortear Apartamento</button>
+            <p id="apartamentoSorteado"></p>
+        </div>
+
+        <div class="form-container">
+            <form id="sorteioForm">
+                <label for="apartamento">Apartamento:</label>
+                <input type="number" id="apartamento" name="apartamento" required>
+                <br>
+                <label for="vaga">Vaga:</label>
+                <select id="vaga" name="vaga" required>
+                    <option value="">Escolha uma vaga</option>
+                </select>
+                <br>
+                <button type="submit">Salvar</button>
+            </form>
+
+        </div>
+
+        <h2>Vagas disponíveis</h2>
+        <div class="vagas-container" id="vagas">
+            <!-- As vagas serão geradas aqui pelo JavaScript -->
+        </div>
+    </div>
+    <script>
+
+
+        const vagas = Array.from({ length: 60 }, (_, i) => ({
+            numero: i + 1,
+            apartamento: null,
+            tipo: i < 30 ? 'coberta' : 'descoberta',
+        }));
+
+        const apartamentos = [101, 102, 103, 201, 202, 203, 301, 302, 303];
+
+        async function listarVagas() {
+            const response = await fetch('/vagas');
+            const vagas = await response.json();
+
+            const vagasDisponiveis = vagas.filter(vaga => !vaga.apartamento || !apartamentosSorteados.includes(vaga.apartamento));
+
+            const vagasHTML = vagasDisponiveis.map(vaga => {
+                const apartamento = vaga.apartamento ? vaga.apartamento : '';
+                const statusText = vaga.apartamento ? `Apt ${apartamento}` : 'Livre';
+                return `
+            <div class="vaga ${apartamento ? 'ocupada' : 'disponivel'}">
+                <div>${vaga.numero}</div>
+                <div>${statusText}</div>
+            </div>`;
+            }).join('');
+
+            document.getElementById('vagas').innerHTML = vagasHTML;
+        }
+
+        async function sortearVagas(event) {
+            event.preventDefault();
+
+            const apartamento = document.getElementById('apartamento').value;
+            const vaga = parseInt(document.getElementById('vaga').value, 10); // Adicione parseInt aqui
+
+            // Se o apartamento já foi sorteado, exibe uma mensagem de erro
+            if (apartamentosSorteados.includes(apartamento)) {
+                alert(`O apartamento ${apartamento} já escolheu uma vaga.`);
+                return;
+            }
+
+            // Se o morador não escolheu uma vaga, exibe uma mensagem de erro
+            if (vaga === '') {
+                alert('Por favor, escolha uma vaga.');
+                return;
+            }
+
+            // Vincula o apartamento com a vaga escolhida
+            const response = await fetch('/sortear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ apartamento, vaga }) // A vaga já está convertida para número
+            });
+
+            if (response.ok) {
+                // Exibe a lista atualizada de vagas disponíveis
+                await listarVagas();
+
+                // Adiciona o apartamento sorteado à lista de apartamentos sorteados
+                apartamentosSorteados.push(apartamento);
+
+                // Exibe uma mensagem com o apartamento sorteado
+                alert(`O apartamento ${apartamento} escolheu a vaga ${vaga}.`);
+            } else {
+                alert(await response.text());
+            }
+        }
+
+
+
+
+
+
+        function vincularApartamentoVaga(apartamento, vagaNumero) {
+            const vaga = vagas.find(v => v.numero === parseInt(vagaNumero, 10));
+            if (vaga) {
+                vaga.apartamento = apartamento;
+            }
+        }
+
+
+
+        const apartamentosSorteados = [];
+        function sortearApartamento() {
+            // Verifica se já foram sorteados todos os apartamentos
+            if (apartamentosSorteados.length === apartamentos.length) {
+                alert('Todos os apartamentos já foram sorteados.');
+                return;
+            }
+
+
+            let apartamentoSorteado;
+            do {
+                // Sorteia um número de apartamento aleatório
+                const index = Math.floor(Math.random() * apartamentos.length);
+                if(apartamentos.length == 0){
+                    alert('Todos os apartamentos já foram sorteados.');
+                    break;
+                }
+                apartamentoSorteado = apartamentos[index];
+                apartamentos.splice(index, 1);
+
+            } while (apartamentosSorteados.includes(apartamentoSorteado));
+
+            // Exibe o apartamento sorteado na tela
+            document.getElementById('apartamentoSorteado').textContent = `O apartamento sorteado foi o ${apartamentoSorteado}.`;
+
+            // Adiciona o apartamento sorteado à lista de apartamentos sorteados
+            apartamentosSorteados.push(apartamentoSorteado);
+        }
+
+        function popularListaVagas() {
+            const vagasDisponiveis = vagas.filter(vaga => !vaga.apartamento || !apartamentosSorteados.includes(vaga.apartamento));
+            const selectVagas = document.getElementById('vaga');
+
+            vagasDisponiveis.forEach(vaga => {
+                const option = document.createElement('option');
+                option.value = vaga.numero;
+                option.textContent = `Vaga ${vaga.numero} (${vaga.tipo})`;
+                selectVagas.appendChild(option);
+            });
+        }
+
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await listarVagas();
+            await popularListaVagas();
+            document.getElementById('sorteioForm').addEventListener('submit', sortearVagas);
+        });
+
+
+    </script>
+</body>
+</div>
+
+</html>
