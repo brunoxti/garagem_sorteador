@@ -184,10 +184,6 @@
         }
     </style>
 
-
-
-
-
 </head>
 <div class="container"></div>
 
@@ -216,7 +212,6 @@
 
         <h2>Vagas disponíveis</h2>
         <div class="vagas-container" id="vagas">
-            <!-- As vagas serão geradas aqui pelo JavaScript -->
         </div>
     </div>
     <script>
@@ -228,6 +223,7 @@
             tipo: i < 30 ? 'coberta' : 'descoberta',
         }));
 
+        //TODO mudar para registrar os aps
         const apartamentos = [101, 102, 103, 201, 202, 203, 301, 302, 303];
 
         async function listarVagas() {
@@ -290,19 +286,12 @@
             }
         }
 
-
-
-
-
-
         function vincularApartamentoVaga(apartamento, vagaNumero) {
             const vaga = vagas.find(v => v.numero === parseInt(vagaNumero, 10));
             if (vaga) {
                 vaga.apartamento = apartamento;
             }
         }
-
-
 
         const apartamentosSorteados = [];
         function sortearApartamento() {
@@ -322,7 +311,7 @@
                     break;
                 }
                 apartamentoSorteado = apartamentos[index];
-                apartamentos.splice(index, 1);
+                //TODO precisa ajustart a lista para remover os aps sorteados, apartamentos.splice(index, 1);
 
             } while (apartamentosSorteados.includes(apartamentoSorteado));
 
@@ -344,8 +333,6 @@
                 selectVagas.appendChild(option);
             });
         }
-
-
 
         document.addEventListener('DOMContentLoaded', async () => {
             await listarVagas();

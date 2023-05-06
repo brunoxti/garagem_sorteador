@@ -1,8 +1,8 @@
+use actix_files as fs;
+use actix_files::NamedFile;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use serde::{Deserialize, Serialize};
-use actix_files::NamedFile;
 use std::path::PathBuf;
-use actix_files as fs;
 use std::sync::{Arc, Mutex};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -16,7 +16,7 @@ struct Vaga {
 #[derive(Debug, Deserialize, Serialize)]
 struct SorteioData {
     apartamento: String,
-    vaga: usize, // Adicione este campo
+    vaga: usize,
 }
 
 fn init_vagas() -> Vec<Vaga> {
@@ -40,18 +40,22 @@ async fn obter_vagas(data: web::Data<Arc<Mutex<Vec<Vaga>>>>) -> impl Responder {
     HttpResponse::Ok().json(vagas.clone())
 }
 
-
 async fn sortear_vaga(
     data: web::Json<SorteioData>,
     vagas_data: web::Data<Arc<Mutex<Vec<Vaga>>>>,
 ) -> impl Responder {
     let mut vagas = vagas_data.lock().unwrap();
 
-    if vagas.iter().any(|v| v.apartamento == Some(data.apartamento.clone())) {
+    if vagas
+        .iter()
+        .any(|v| v.apartamento == Some(data.apartamento.clone()))
+    {
         return HttpResponse::BadRequest().body("Este apartamento já escolheu uma vaga.");
     }
 
-    let vaga_disponivel = vagas.iter_mut().find(|v| v.id == data.vaga && v.apartamento.is_none()); // Atualize esta linha
+    let vaga_disponivel = vagas
+        .iter_mut()
+        .find(|v| v.id == data.vaga && v.apartamento.is_none()); // Atualize esta linha
 
     if let Some(vaga) = vaga_disponivel {
         vaga.apartamento = Some(data.apartamento.clone());
@@ -60,10 +64,6 @@ async fn sortear_vaga(
         HttpResponse::BadRequest().body("Todas as vagas já foram ocupadas.")
     }
 }
-
-
-
-
 
 // Função de manipulador para a rota GET na raiz
 async fn index() -> actix_web::Result<NamedFile> {
@@ -89,11 +89,3 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-
-
-
-
-
-
-
-
